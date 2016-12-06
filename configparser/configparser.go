@@ -2,11 +2,14 @@ package configparser
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
 	"io"
 	"log"
 	"os"
 	"regexp"
+	"strconv"
+	"strings"
 )
 
 var sectionRE = regexp.MustCompile(`^\[(?P<header>[^]]+)\]`)
@@ -126,4 +129,25 @@ func (c *ConfigParser) Get(section, option string) (val string, err error) {
 	}
 
 	return sec.options[option], err
+}
+
+func (c *ConfigParser) Getint(section, option string) (val int, err error) {
+	sv, err := c.Get(section, option)
+	if err != nil {
+		return val, err
+	}
+	return strconv.Atoi(sv)
+}
+
+func (c *ConfigParser) Getbool(section, option string) (val bool, err error) {
+	sv, err := c.Get(section, option)
+	if err != nil {
+		return val, err
+	}
+
+	val, ok := booteanState[strings.ToLower(sv)]
+	if !ok {
+		return val, errors.New(fmt.Sprintf("No boolean: %s", sv))
+	}
+	return val, err
 }
