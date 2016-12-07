@@ -8,7 +8,7 @@ import (
 	"os"
 )
 
-func PipeYieldField(out chan<- string, parser *configparser.ConfigParser) {
+func PipeYieldField(out chan<- interface{}, parser *configparser.ConfigParser) {
 	reader := bufio.NewReader(os.Stdin)
 	for {
 		line, err := reader.ReadSlice('\n')

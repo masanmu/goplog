@@ -13,11 +13,11 @@ func Run(cfg string, debug bool) {
 }
 
 func run(cfg string, debug bool) {
-	var Out = make(chan string)
-	var In = make(chan string)
-	var sourceMap = map[string]func(chan<- string, *configparser.ConfigParser){"file": source.FielYieldLine, "pipe": source.PipeYieldField}
-	var channelMap = map[string]func(chan<- string, <-chan string, *configparser.ConfigParser){"grok": channel.ParseLine}
-	var sinkMap = map[string]func(<-chan string, *configparser.ConfigParser){"zabbix": sink.CalculateItem}
+	var Out = make(chan interface{})
+	var In = make(chan interface{})
+	var sourceMap = map[string]func(chan<- interface{}, *configparser.ConfigParser){"file": source.FielYieldLine, "pipe": source.PipeYieldField}
+	var channelMap = map[string]func(chan<- interface{}, <-chan interface{}, *configparser.ConfigParser){"json": channel.ParseLine}
+	var sinkMap = map[string]func(<-chan interface{}, *configparser.ConfigParser){"zabbix": sink.CalculateItem}
 
 	parser := configparser.New()
 	parser.ReadFile(cfg)
@@ -35,7 +35,7 @@ func run(cfg string, debug bool) {
 		log.Fatal(err)
 	}
 
-	go sourceMap[sourceModuleName](Out, parser)
+	go sourceMap[sourceModuleName](In, parser)
 	go channelMap[channelModuleName](Out, In, parser)
 	sinkMap[sinkModuleName](Out, parser)
 	//	select {}
